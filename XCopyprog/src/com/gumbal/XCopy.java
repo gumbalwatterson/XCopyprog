@@ -36,20 +36,18 @@ import javax.swing.tree.TreePath;
 
 
 public class XCopy implements TreeSelectionListener {
-	protected static FileSystemView fsv = FileSystemView.getFileSystemView();
-	private JFrame frame;
+
+protected static FileSystemView fsv = FileSystemView.getFileSystemView();
+
+private JFrame frame;
 private JButton btnCopy;
-private   String pathfortree;
+private String pathfortree;
 private String pathfortree2;
-private JButton btnaddextension;
-private JTextArea text;
 private Copying copying;
 private JTree tree;
 private JTree tree2; 
-private boolean extensionadded = false; 
-/**
-	 * Launch the application.
-	 */
+
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -63,25 +61,21 @@ private boolean extensionadded = false;
 		});
 	}
 
-	/**
-	 * Create the application.
-	 */
 	public XCopy() {
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 900, 800);
+		frame.setBounds(100, 100, 837, 560);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		frame.setTitle("XCopy");
+		frame.setResizable(false);
 		
 		copying = new Copying();
 		
-		// first tree
+// first tree
  File[] roots = File.listRoots();
  CustomTreeNode customtreenode = new CustomTreeNode(roots);
  tree = new JTree(customtreenode); 
@@ -90,7 +84,7 @@ private boolean extensionadded = false;
  tree.setRootVisible(false);
  
   JScrollPane scrollpane = new JScrollPane(tree);
-  scrollpane.setBounds(10, 10, 400,400);
+  scrollpane.setBounds(10, 50, 400,400);
   frame.getContentPane().add(scrollpane);
   	
 // second tree
@@ -99,12 +93,12 @@ private boolean extensionadded = false;
   tree2 = new JTree(customtreenode2); 
   tree2.setCellRenderer(new FileTreeCellRenderer());
   
-  tree2.addTreeSelectionListener(this); /**/
+  tree2.addTreeSelectionListener(this); 
   
   tree2.setRootVisible(false);
   
   JScrollPane scrollpane2 = new JScrollPane(tree2);
-  scrollpane2.setBounds(420, 10, 400,400);
+  scrollpane2.setBounds(420, 50, 400,400);
    frame.getContentPane().add(scrollpane2);
    	
    
@@ -131,62 +125,24 @@ private boolean extensionadded = false;
 		}
 	});
 	
-	btnCopy.setBounds(250, 449, 89, 23);
-	btnCopy.setEnabled(false);
+	btnCopy.setBounds(371, 478, 89, 23);
+	btnCopy.setEnabled(true);
 	frame.getContentPane().add(btnCopy);
 	
+	JLabel lblDestination = new JLabel("Destination");
+	lblDestination.setBounds(583, 11, 81, 14);
+	frame.getContentPane().add(lblDestination);
 	
-	//extension button
-	btnaddextension = new JButton("add extensions");
-	btnaddextension.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		String ext;
-		if(XCopy.this.text.getText() != null && !XCopy.this.text.getText().isEmpty() ) {
-
-			ext = XCopy.this.text.getText();
-			String []str =ext.split(",");
-			
-			ArrayList<String> extensionlist = new ArrayList<>();
-			for(int i = 0 ; i<str.length ; i++) {
-			extensionlist.add(str[i]);
-			}
-			extensionadded = copying.setExtensions(extensionlist);
-		}
+	JLabel lblSource = new JLabel("Source");
+	lblSource.setBounds(183, 11, 46, 14);
+	frame.getContentPane().add(lblSource);
 	
 
-		}
-	});
-	
-	btnaddextension.setBounds(370, 449, 140, 23);
-	frame.getContentPane().add(btnaddextension);
-
-	
-	// textArea
-  text = new JTextArea();
-  text.setBounds(370 , 480 , 200 , 150);
-  text.setLineWrap(true);
-  text.setWrapStyleWord(true);
-  text.addKeyListener(new KeyAdapter() {
-      public void keyReleased(KeyEvent e) { 
-          if(text.getText().length() == 0)
-              btnCopy.setEnabled(false);
-          else
-          {
-              btnCopy.setEnabled(true);
-          }
-      }
-});
-  JScrollPane scrollpane3 = new JScrollPane(text);
-  scrollpane3.setBounds(370, 480, 200,150);
-  scrollpane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-  frame.getContentPane().add(scrollpane3);
-  
 	
 	}
 
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
-System.out.println(extensionadded);
 
 		if(e.getNewLeadSelectionPath() == null)return;
 		
@@ -213,8 +169,6 @@ System.out.println(extensionadded);
 			pathfortree2 = path;
 			System.out.println(pathfortree2);
 		}
-		
-		
 }
 
 class FileTreeModel  implements TreeModel{

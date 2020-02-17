@@ -17,7 +17,6 @@ import javax.swing.JOptionPane;
 public class Copying {
 
 	 ArrayList<String> list;
-	ArrayList<String> copiedfiles = new ArrayList<>();
 	 
 	 public Copying(ArrayList<String> list){
 		this.list = list;
@@ -27,17 +26,7 @@ public class Copying {
 		
 	}
 	
-	public boolean setExtensions(ArrayList<String> list) {
-		this.list = list;
-		if(this.list.isEmpty()) {   
-			return false;
-		}
-		else {  
-			return true;
-		}
-		
-		
-	}
+	
 	
 	public void copyFoldersAndContent(File source , File dest) {
 		
@@ -78,9 +67,7 @@ public class Copying {
 				}
 				catch(IOException e) {
 					e.printStackTrace();
-				}
-				
-		
+				}						
 		}
 	}
 	
@@ -90,31 +77,26 @@ public class Copying {
 		
 		
 		// if file not copied
-		if(!copiedfiles.contains(source.getAbsolutePath()) && source.list()!= null) {
-			copiedfiles.add(source.getAbsolutePath());
-		
-		
+		if(source.list()!= null) {
+				
 		List<String> listoffolders = Arrays.asList(source.list());
 		
 		for(String s1 : listoffolders ) {
-		
-		int index =s1.lastIndexOf(".");
-		String extension =s1.substring(index+1);
 
-		if(!check(extension)) {
+		if(source.isDirectory()) {
 		
 			try {
-				Files.copy(new File(source.getPath()+"/"+s1).toPath()
-						, new File(dest.getPath()+"/"+s1).toPath());
+			Files.copy(new File(source.getPath()+"/"+s1).toPath()
+					  ,new File(dest.getPath()+"/"+s1).toPath());
 			} catch (IOException e) {
 			
 				e.printStackTrace();
 			}
 						
 		subfolder(new File(source.getAbsolutePath()+"/"+s1) ,
-				new File(dest.getAbsolutePath()+"/"+ s1) );
+				  new File(dest.getAbsolutePath()+"/"+ s1));
 		}
-			
+		else {	
 		
 		try {
 		String filesource =	source.getPath()+"/"+s1;
@@ -131,7 +113,7 @@ public class Copying {
 			e.printStackTrace();
 		}
 		
-		
+			}
 		}// end of for each loop
 
 	} // end of checking if copied file
@@ -139,15 +121,5 @@ public class Copying {
 	return source.toPath();
 	
 	}
-	
-public  boolean check(String extension) {
-	for(String s : list) {
-		if(s.equalsIgnoreCase(extension)) {
-	return true;
-		}
-	}
-	
-	return  false;
-}
-	
+		
 }
