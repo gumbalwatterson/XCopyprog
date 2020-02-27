@@ -3,14 +3,19 @@ package com.gumbal;
 
 
 import java.awt.Component;
+
 import java.awt.EventQueue;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -22,6 +27,8 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.TransferHandler;
+import javax.swing.TransferHandler.TransferSupport;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -30,12 +37,12 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 
 
 
-
-public class XCopy implements TreeSelectionListener {
+public class XCopy  {
 
 protected static FileSystemView fsv = FileSystemView.getFileSystemView();
 
@@ -80,8 +87,11 @@ private JTree tree2;
  CustomTreeNode customtreenode = new CustomTreeNode(roots);
  tree = new JTree(customtreenode); 
  tree.setCellRenderer(new FileTreeCellRenderer());
- tree.addTreeSelectionListener(this);
+ //tree.addTreeSelectionListener(this);
  tree.setRootVisible(false);
+ tree.setDragEnabled(true);
+ tree.getSelectionModel().setSelectionMode(TreeSelectionModel.
+         DISCONTIGUOUS_TREE_SELECTION);
  
   JScrollPane scrollpane = new JScrollPane(tree);
   scrollpane.setBounds(10, 50, 400,400);
@@ -93,42 +103,135 @@ private JTree tree2;
   tree2 = new JTree(customtreenode2); 
   tree2.setCellRenderer(new FileTreeCellRenderer());
   
-  tree2.addTreeSelectionListener(this); 
-  
+  //tree2.addTreeSelectionListener(this); 
+  /*tree2.addMouseListener(new MouseListener() {
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		
+		System.out.println("mouse released");
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	  
+  });*/
   tree2.setRootVisible(false);
+  
+  tree2.setTransferHandler(new TransferHandler() {
+	  @Override
+     public boolean importData(TransferSupport support) {
+       if (!canImport(support)) {
+         return false;
+       }
+       JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
+       TreePath path = dl.getPath();
+       int childIndex = dl.getChildIndex();
+
+  //     Object data;
+    
+try {
+		  
+       	
+    //     data =  support.getTransferable().getTransferData(
+      //       DataFlavor.stringFlavor);
+
+} catch (Exception e) {
+e.printStackTrace();
+    return false;
+    }
+
+/*
+       if (childIndex == -1) {
+        // childIndex = tree.getModel().getChildCount(
+          //   path.getLastPathComponent());
+      
+       //	childIndex	= tree2.getModel().getChildCount(path.getLastPathComponent());
+       
+       }
+*/
+       File destination = null;
+       CustomTreeNode n = (CustomTreeNode)path.getLastPathComponent();
+       
+       if(tree2.getLeadSelectionPath()==null
+       		&& tree.getLeadSelectionPath() ==  null) return false;
+       
+
+       if(((CustomTreeNode)tree2.getSelectionPath().getLastPathComponent())
+		.file.getAbsolutePath().equals(n.file.getAbsolutePath())) {
+	
+    	   destination = n.file;
+       						}
+
+
+		
+	TreePath[] treepath =	tree.getSelectionPaths();
+
+String finish[] = new String[treepath.length];
+
+	for(int  i =0 ; i <treepath.length; i++) {
+	  
+	if(i == 0)System.out.println("copying...");
+	
+	File source  =((CustomTreeNode)treepath[i].getLastPathComponent()).file;
+	
+	if(destination!= null) {
+finish[i] = new Copying().copyFoldersAndContent(source, destination);
+		
+		}
+	}
+		for(int j = 0 ; j<finish.length ; j++) {
+			System.out.println(finish[j]);
+		}
+		
+       return true;
+    }
+	  
+	  public boolean canImport(TransferSupport support) {
+	        if (!support.isDrop()) {
+	          return false;
+	        } 
+	        support.setShowDropLocation(true);
+	        if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+	          System.out.println("only string is supported");
+	          return false;
+	        }
+	        JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
+	        TreePath path = dl.getPath();
+	        if (path == null) {
+	          return false;
+	        }
+	        return true;
+	      }
+ });
+ 
   
   JScrollPane scrollpane2 = new JScrollPane(tree2);
   scrollpane2.setBounds(420, 50, 400,400);
    frame.getContentPane().add(scrollpane2);
-   	
-   
-   //button for copying
-   
-	btnCopy = new JButton("copy");
-	btnCopy.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		
-		// code for copy
-	if(pathfortree != null && !tree2.isSelectionEmpty() ) {	
-		
-			String s =pathfortree; 
-			String s2  = pathfortree2;
-			
-			File source = new File(s);
-			File dest = new File(s2);
-		System.out.println("source " + source);
-		System.out.println("destination " + dest);
-			copying.copyFoldersAndContent(source, dest);
-	
-	}
-
-		}
-	});
-	
-	btnCopy.setBounds(371, 478, 89, 23);
-	btnCopy.setEnabled(true);
-	frame.getContentPane().add(btnCopy);
-	
+   		
 	JLabel lblDestination = new JLabel("Destination");
 	lblDestination.setBounds(583, 11, 81, 14);
 	frame.getContentPane().add(lblDestination);
@@ -141,34 +244,6 @@ private JTree tree2;
 	
 	}
 
-	@Override
-	public void valueChanged(TreeSelectionEvent e) {
-
-		if(e.getNewLeadSelectionPath() == null)return;
-		
-		if(	tree ==e.getSource()) {
-			CustomTreeNode node =(CustomTreeNode)e.getPath().getLastPathComponent();
-			setpathForTree(node.file.getAbsolutePath());
-			
-		
-		}else {
-
-		
-		CustomTreeNode node =(CustomTreeNode)e.getPath().getLastPathComponent();
-		setpathForTree2(node.file.getAbsolutePath());
-		}		
-		
-	}
-		
-		public void setpathForTree(String path) {
-			pathfortree = path;
-		System.out.println(pathfortree);
-		}
-		
-		public void setpathForTree2(String path) {
-			pathfortree2 = path;
-			System.out.println(pathfortree2);
-		}
 }
 
 class FileTreeModel  implements TreeModel{
