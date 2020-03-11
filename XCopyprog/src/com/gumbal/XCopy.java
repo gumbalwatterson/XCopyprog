@@ -3,37 +3,31 @@ package com.gumbal;
 
 
 import java.awt.Component;
-
 import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
+import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -87,57 +81,26 @@ private JTree tree2;
  CustomTreeNode customtreenode = new CustomTreeNode(roots);
  tree = new JTree(customtreenode); 
  tree.setCellRenderer(new FileTreeCellRenderer());
- //tree.addTreeSelectionListener(this);
  tree.setRootVisible(false);
  tree.setDragEnabled(true);
  tree.getSelectionModel().setSelectionMode(TreeSelectionModel.
          DISCONTIGUOUS_TREE_SELECTION);
  
+ DefaultTreeModel modelfortree = new DefaultTreeModel(customtreenode);
+ tree.setModel(modelfortree);
+
+ 
   JScrollPane scrollpane = new JScrollPane(tree);
   scrollpane.setBounds(10, 50, 400,400);
   frame.getContentPane().add(scrollpane);
-  	
+ 
+  
 // second tree
   File[] roots2 = File.listRoots();
   CustomTreeNode customtreenode2 = new CustomTreeNode(roots2);
-  tree2 = new JTree(customtreenode2); 
+  tree2 = new JTree(customtreenode2);    
   tree2.setCellRenderer(new FileTreeCellRenderer());
-  
-  //tree2.addTreeSelectionListener(this); 
-  /*tree2.addMouseListener(new MouseListener() {
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		
-		System.out.println("mouse released");
-		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	  
-  });*/
+  tree2.setModel(modelfortree);
   tree2.setRootVisible(false);
   
   tree2.setTransferHandler(new TransferHandler() {
@@ -148,30 +111,8 @@ private JTree tree2;
        }
        JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
        TreePath path = dl.getPath();
-       int childIndex = dl.getChildIndex();
 
-  //     Object data;
-    
-try {
-		  
-       	
-    //     data =  support.getTransferable().getTransferData(
-      //       DataFlavor.stringFlavor);
 
-} catch (Exception e) {
-e.printStackTrace();
-    return false;
-    }
-
-/*
-       if (childIndex == -1) {
-        // childIndex = tree.getModel().getChildCount(
-          //   path.getLastPathComponent());
-      
-       //	childIndex	= tree2.getModel().getChildCount(path.getLastPathComponent());
-       
-       }
-*/
        File destination = null;
        CustomTreeNode n = (CustomTreeNode)path.getLastPathComponent();
        
@@ -202,11 +143,65 @@ finish[i] = new Copying().copyFoldersAndContent(source, destination);
 		
 		}
 	}
-		for(int j = 0 ; j<finish.length ; j++) {
-			System.out.println(finish[j]);
-		}
+	
 		
-       return true;
+	String warrningsMessages ="";
+		
+	
+			if(finish.length==1 && finish[0].equals("copied sucessfully")) {
+			
+				
+				EventQueue.invokeLater(new Runnable() {
+					
+					public void run() {
+					
+						JOptionPane.showMessageDialog(XCopy.this.frame,"copied sucessfully");
+					}
+					
+				});
+				
+				
+				// switch on the sound of successful task				
+	try (AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+						XCopy.class.getResourceAsStream("xCopyComplete.wav"))){ 
+		
+		Clip clip = AudioSystem.getClip();		    
+					
+					if(!clip.isOpen()) {
+						clip.open(inputStream);
+					}
+					
+					clip.start(); 
+					     
+
+					} catch (Exception e) {
+					
+						e.printStackTrace();
+					}
+			}else {
+				
+				for(String s : finish) {
+					warrningsMessages += s + "\n";
+				}
+				
+				String warrnings = warrningsMessages;	
+				
+				// display messages informing user that files have already been copied 
+				EventQueue.invokeLater(new Runnable() {
+				
+		public void run() {
+		
+			JOptionPane.showMessageDialog(XCopy.this.frame, warrnings,
+			"Warrning", JOptionPane.WARNING_MESSAGE);
+			
+						}
+		});			
+		
+			}
+
+	modelfortree.reload((CustomTreeNode)tree2.getSelectionPath().getLastPathComponent());
+	 
+	return true;
     }
 	  
 	  public boolean canImport(TransferSupport support) {
@@ -239,9 +234,7 @@ finish[i] = new Copying().copyFoldersAndContent(source, destination);
 	JLabel lblSource = new JLabel("Source");
 	lblSource.setBounds(183, 11, 46, 14);
 	frame.getContentPane().add(lblSource);
-	
-
-	
+		
 	}
 
 }
@@ -287,7 +280,7 @@ class FileTreeModel  implements TreeModel{
 
 	@Override
 	public void valueForPathChanged(TreePath path, Object newValue) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
@@ -306,13 +299,13 @@ class FileTreeModel  implements TreeModel{
 
 	@Override
 	public void addTreeModelListener(TreeModelListener l) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void removeTreeModelListener(TreeModelListener l) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 	
@@ -400,10 +393,18 @@ public CustomTreeNode(File[] children) {
 		return (this.getChildCount() == 0);
 	}
 	
+	public void setchildren(File [] children) {
+		
+		this.file = null;
+		this.parent = null;
+		this.children = children;
+	}
+	
+	
 }
 class FileTreeCellRenderer extends DefaultTreeCellRenderer {
 	
-	private Map<String, Icon> iconCache = new HashMap<String, Icon>();
+	
 	
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -423,15 +424,11 @@ class FileTreeCellRenderer extends DefaultTreeCellRenderer {
 				filename, sel, expanded, leaf, row, hasFocus);
 	
 		if(file !=null) {
-		Icon icon = this.iconCache.get(filename);
-			if (icon == null) {
-		
-				icon = XCopy.fsv.getSystemIcon(file);
-				this.iconCache.put(filename,icon);
-			}
-			result.setIcon(icon);
+			
+			 Icon icon = XCopy.fsv.getSystemIcon(file);
+			
+		result.setIcon(icon);
 		}
 		return result;
 	}
 }
-

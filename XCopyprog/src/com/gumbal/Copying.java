@@ -38,9 +38,8 @@ public class Copying {
 		subfolder(source, dest2);
 		
 		}else {
-	//System.out.println("folder in that directory already exist");
+	
 	return "the folder "+ dest2.getName() +" in that directory already exist";	
-	//throw new RuntimeException("folder in that directory already exist"); 
 		
 			}
 		}
@@ -52,9 +51,6 @@ public class Copying {
 				
 				String nameoffile = source.getName();
 				
-				//String filesource =	source.getPath();
-				//File fsource = new File(filesource);
-				
 				String filedestination  = dest.getPath();
 				filedestination = filedestination+"/"+nameoffile;
 				File fdestination =new File(filedestination);
@@ -64,7 +60,7 @@ public class Copying {
 				
 		
 			}catch(FileAlreadyExistsException e) {
-	//System.out.println("the file: " + source.getAbsolutePath() + " was already copied");
+
 			return 	"the file: " + source.getAbsolutePath() + " was already copied";
 			}
 				catch(IOException e) {
