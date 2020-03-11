@@ -28,7 +28,7 @@ public class Copying {
 	
 	
 	
-	public void copyFoldersAndContent(File source , File dest) {
+	public String copyFoldersAndContent(File source , File dest) {
 		
 		// if we copy directory and files under that directory
 		if(source.isDirectory()) {
@@ -39,7 +39,7 @@ public class Copying {
 		
 		}else {
 	
-		throw new RuntimeException("folder in that directory already exist"); 
+	return "the folder "+ dest2.getName() +" in that directory already exist";	
 		
 			}
 		}
@@ -51,9 +51,6 @@ public class Copying {
 				
 				String nameoffile = source.getName();
 				
-				//String filesource =	source.getPath();
-				//File fsource = new File(filesource);
-				
 				String filedestination  = dest.getPath();
 				filedestination = filedestination+"/"+nameoffile;
 				File fdestination =new File(filedestination);
@@ -63,12 +60,14 @@ public class Copying {
 				
 		
 			}catch(FileAlreadyExistsException e) {
-	System.out.println("the file: " + source.getAbsolutePath() + " was already copied");
-				}
+
+			return 	"the file: " + source.getAbsolutePath() + " was already copied";
+			}
 				catch(IOException e) {
 					e.printStackTrace();
 				}						
 		}
+	return "copied sucessfully"; 
 	}
 	
 	
@@ -86,10 +85,15 @@ public class Copying {
 		if(source.isDirectory()) {
 		
 			try {
-			Files.copy(new File(source.getPath()+"/"+s1).toPath()
+		
+				
+				Files.copy(new File(source.getPath()+"/"+s1).toPath()
 					  ,new File(dest.getPath()+"/"+s1).toPath());
+				
+			
 			} catch (IOException e) {
 			
+				
 				e.printStackTrace();
 			}
 						
