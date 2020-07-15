@@ -5,10 +5,9 @@ package com.gumbal;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.datatransfer.DataFlavor;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.sound.sampled.AudioInputStream;
@@ -22,8 +21,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
-import javax.swing.TransferHandler.TransferSupport;
-import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -162,8 +159,8 @@ finish[i] = new Copying().copyFoldersAndContent(source, destination);
 				
 				
 				// switch on the sound of successful task				
-	try (AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-						XCopy.class.getResourceAsStream("xCopyComplete.wav"))){ 
+	try (BufferedInputStream myStream = new BufferedInputStream(this.getClass().getResourceAsStream("xCopyComplete.wav"));
+			AudioInputStream inputStream = AudioSystem.getAudioInputStream(myStream)){ 
 		
 		Clip clip = AudioSystem.getClip();		    
 					
